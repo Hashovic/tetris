@@ -1,6 +1,11 @@
-#my_canvas {
-    width: 600px;
-    height: 600px;
-    border: 2px solid black;
+body, html {
+    height: 100%;
+    margin: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
 
+.my_canvas {
+    border: 2px solid black;
 }
