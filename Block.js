@@ -1,4 +1,4 @@
-const B_SIZE = 20;
+const B_SIZE = 25;
 
 class Block {
     constructor(pos, coloring) {
@@ -17,6 +17,6 @@ class Block {
     }
 
     mvdwn() {
-        this.cur_pos.y++;
+        this.cur_pos.add(createVector(0,1));
     }
 }
