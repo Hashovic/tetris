@@ -8,15 +8,31 @@ class Block {
 
     draw() {
         push();
-        let pos = this.cur_pos;
+        let pos = this.cur_pos.copy().mult(B_SIZE);
         fill(this.color);
         stroke(0);
-        strokeWeight(3);
-        square(pos.x * B_SIZE, pos.y * B_SIZE, B_SIZE);
+        strokeWeight(1.5);
+        square(pos.x, pos.y, B_SIZE);
         pop();
     }
 
     mvdwn() {
         this.cur_pos.add(createVector(0,1));
+    }
+
+    mvleft() {
+        this.cur_pos.add(createVector(-1,0));
+    }
+
+    mvright() {
+        this.cur_pos.add(createVector(1,0));
+    }
+
+    set_pos(val) {
+        this.cur_pos = val;
+    }
+
+    get_pos(){
+        return this.cur_pos.copy();
     }
 }
