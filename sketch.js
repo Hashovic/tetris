@@ -34,35 +34,35 @@ function setup(){
             rotate_pos: createVector(1.5, 0.5)
         },
 
-        //shape_J
+        // shape_J
         {
             positions: [createVector(0,0), createVector(0, 1), createVector(1, 1), createVector(2, 1)],
             coloring: color(130, 90, 240),
             rotate_pos: createVector(1, 1)
         },
 
-        //shape_L
+        // shape_L
         {
             positions: [createVector(2,0), createVector(0, 1), createVector(1, 1), createVector(2, 1)],
             coloring: color(245, 140, 80),
             rotate_pos: createVector(1, 1)
         },
 
-        //shape_S
+        // shape_S
         {
             positions: [createVector(1,0), createVector(2, 0), createVector(0, 1), createVector(1, 1)],
             coloring: color(140, 240, 100),
             rotate_pos: createVector(1, 1)
         },
 
-        //shape_Z
+        // shape_Z
         {
             positions: [createVector(0,0), createVector(1, 0), createVector(1, 1), createVector(2, 1)],
             coloring: color(255, 80, 80),
             rotate_pos: createVector(1, 1)
         },
 
-        //shape_T
+        // shape_T
         {
             positions: [createVector(1,0), createVector(0, 1), createVector(1, 1), createVector(2, 1)],
             coloring: color(220, 90, 240),
@@ -113,6 +113,12 @@ function keyPressed() {
 
     if (keyCode == '38') {
         shapey.rotate();
+    }
+
+    if (keyCode == '32') {
+        while (check_collide() != 1){
+            shapey.mvdwn();
+        }
     }
 }
 
