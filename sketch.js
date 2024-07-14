@@ -1,10 +1,12 @@
-let shape_O, shape_I, shape_J, shape_L, shape_S, shape_Z, shape_T;
+let orientations;
 let shapey;
-let shapes = [];
 let down_time = 0;
 let left_time = 0;
 let right_time = 0;
 let interval = 50;
+let dead = [];
+let grid_width = 20;
+let grid_height = 28;
 
 function setup(){
     /*
@@ -17,61 +19,78 @@ function setup(){
 
         Rotate_pos can be thought of as the imaginary square in which everything rotates around
     */
+    orientations = [
+        // shape_O
+        {
+            positions: [createVector(0,0), createVector(1, 0), createVector(0, 1), createVector(1, 1)],
+            coloring: color(240, 220, 60),
+            rotate_pos: createVector(0.5, 0.5)
+        },
 
-    shape_O = {
-        positions: [createVector(0,0), createVector(1, 0), createVector(0, 1), createVector(1, 1)],
-        coloring: color(240, 220, 60),
-        rotate_pos: createVector(0.5, 0.5)
-    }
+        // shape_I
+        {
+            positions: [createVector(0,1), createVector(1, 1), createVector(2, 1), createVector(3, 1)],
+            coloring: color(60, 240, 180),
+            rotate_pos: createVector(1.5, 0.5)
+        },
 
-    shape_I = {
-        positions: [createVector(0,1), createVector(1, 1), createVector(2, 1), createVector(3, 1)],
-        coloring: color(60, 240, 180),
-        rotate_pos: createVector(1.5, 0.5)
-    }
+        //shape_J
+        {
+            positions: [createVector(0,0), createVector(0, 1), createVector(1, 1), createVector(2, 1)],
+            coloring: color(130, 90, 240),
+            rotate_pos: createVector(1, 1)
+        },
 
-    shape_J = {
-        positions: [createVector(0,0), createVector(0, 1), createVector(1, 1), createVector(2, 1)],
-        coloring: color(130, 90, 240),
-        rotate_pos: createVector(1, 1)
-    }
+        //shape_L
+        {
+            positions: [createVector(2,0), createVector(0, 1), createVector(1, 1), createVector(2, 1)],
+            coloring: color(245, 140, 80),
+            rotate_pos: createVector(1, 1)
+        },
 
-    shape_L = {
-        positions: [createVector(2,0), createVector(0, 1), createVector(1, 1), createVector(2, 1)],
-        coloring: color(245, 140, 80),
-        rotate_pos: createVector(1, 1)
-    }
+        //shape_S
+        {
+            positions: [createVector(1,0), createVector(2, 0), createVector(0, 1), createVector(1, 1)],
+            coloring: color(140, 240, 100),
+            rotate_pos: createVector(1, 1)
+        },
 
-    shape_S = {
-        positions: [createVector(1,0), createVector(2, 0), createVector(0, 1), createVector(1, 1)],
-        coloring: color(140, 240, 100),
-        rotate_pos: createVector(1, 1)
-    }
+        //shape_Z
+        {
+            positions: [createVector(0,0), createVector(1, 0), createVector(1, 1), createVector(2, 1)],
+            coloring: color(255, 80, 80),
+            rotate_pos: createVector(1, 1)
+        },
 
-    shape_Z = {
-        positions: [createVector(0,0), createVector(1, 0), createVector(1, 1), createVector(2, 1)],
-        coloring: color(255, 80, 80),
-        rotate_pos: createVector(1, 1)
-    }
+        //shape_T
+        {
+            positions: [createVector(1,0), createVector(0, 1), createVector(1, 1), createVector(2, 1)],
+            coloring: color(220, 90, 240),
+            rotate_pos: createVector(1, 1)
+        }
+    ]
 
-    shape_T = {
-        positions: [createVector(1,0), createVector(0, 1), createVector(1, 1), createVector(2, 1)],
-        coloring: color(220, 90, 240),
-        rotate_pos: createVector(1, 1)
-    }
-
-    window.canvas = createCanvas(700, 700);
+    window.canvas = createCanvas(grid_width * B_SIZE, grid_height * B_SIZE);
     window.canvas.addClass('my_canvas');
-    shapey = drawBlock(1, 1, shape_S);
+    shapey = drawBlock(1, 1, orientations[6]);
 
     centerCanvas();
 }
 
 function draw(){
     background(220);
+    for(let j of dead){
+        j.draw();
+    }
     shapey.draw();
-
     movement();
+
+    if(check_collide() == 1){
+        for(let block = 0; block < shapey.blocks.length; block++){
+            dead.push(shapey.blocks[block]);
+        }
+        shapey = drawBlock(1, 1, orientations[floor(random(orientations.length))])
+    }
 }
 
 function centerCanvas(){
@@ -86,7 +105,6 @@ function windowResized() {
 
 function drawBlock(x, y, shape) {
     let temp = new Shape(createVector(x, y), shape);
-    shapes.push(temp);
     
     return temp;
 }
@@ -122,6 +140,14 @@ function movement() {
         if (currentTime - right_time >= interval) {
             shapey.mvright();
             right_time = currentTime;
+        }
+    }
+}
+
+function check_collide() {
+    for(let i = 0; i < shapey.blocks.length; i++){
+        if(shapey.blocks[i].cur_pos.y + 1 >= grid_height){
+            return 1;
         }
     }
 }
