@@ -83,13 +83,17 @@ function draw(){
         j.draw();
     }
     shapey.draw();
-    movement();
 
-    if(check_collide() == 1){
+    let col = check_collide();
+
+    if(col == 1){
         for(let block = 0; block < shapey.blocks.length; block++){
             dead.push(shapey.blocks[block]);
         }
-        shapey = drawBlock(1, 1, orientations[floor(random(orientations.length))])
+        shapey = drawBlock(1, 1, orientations[floor(random(orientations.length))]);
+    }
+    else{
+        movement(col);
     }
 }
 
@@ -104,9 +108,7 @@ function windowResized() {
 }
 
 function drawBlock(x, y, shape) {
-    let temp = new Shape(createVector(x, y), shape);
-    
-    return temp;
+    return new Shape(createVector(x, y), shape);
 }
 
 function keyPressed() {
@@ -122,7 +124,7 @@ function keyPressed() {
     }
 }
 
-function movement() {
+function movement(num) {
     
     let currentTime = millis();
     // down
@@ -134,7 +136,7 @@ function movement() {
     }
 
     // left
-    if (keyIsDown(37)){
+    if (keyIsDown(37) && num != 2){
         if (currentTime - left_time >= interval) {
             shapey.mvleft();
             left_time = currentTime;
@@ -142,7 +144,7 @@ function movement() {
     }
 
     // right
-    if (keyIsDown(39)){
+    if (keyIsDown(39) && num != 3){
         if (currentTime - right_time >= interval) {
             shapey.mvright();
             right_time = currentTime;
@@ -151,9 +153,30 @@ function movement() {
 }
 
 function check_collide() {
-    for(let i = 0; i < shapey.blocks.length; i++){
-        if(shapey.blocks[i].cur_pos.y + 1 >= grid_height){
+    let future_positions = shapey.future_pos();
+    let current = shapey.get_pos();
+
+    // lower bound
+    for(let i = 0; i < future_positions.length; i++){
+        let y_pos = future_positions[i].y;
+        if(y_pos >= grid_height){
             return 1;
         }
+        for(let k = 0; k < dead.length; k++){
+            if(p5.Vector.equals(future_positions[i], dead[k].get_pos())){
+                return 1;
+            }
+        }
     }
+
+    // left and right bounds
+    for(let j = 0; j < current.length; j++){
+        if(current[j].x <= 0){
+            return 2;
+        }
+        if(current[j].x + 1 >= grid_width){
+            return 3;
+        }
+    }
+    return 0;
 }

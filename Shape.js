@@ -56,4 +56,22 @@ class Shape {
             block.set_pos(p5.Vector.add(rotatedPos, center));
         }
     }
+
+    // gets the future positions of the shape for collission detection purposes
+    future_pos() {
+        let future = [];
+        for(let b of this.blocks){
+            future.push(b.get_pos().add(createVector(0, 1)));
+        }
+        return future;
+    }
+
+    // gets current position
+    get_pos(){
+        let current = [];
+        for(let b of this.blocks){
+            current.push(b.get_pos());
+        }
+        return current;
+    }
 }
