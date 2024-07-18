@@ -1,11 +1,12 @@
 class Shape {
-    constructor(start_pos, shape_type) {
+    constructor(start_pos, shape_type, pg=window) {
         this.cur_pos = start_pos;
         this.type = shape_type;
         this.blocks = [];
+        this.pg = pg;
 
         for(let v of this.type.positions){
-            this.blocks.push(new Block(p5.Vector.add(v, this.cur_pos), this.type.coloring));
+            this.blocks.push(new Block(p5.Vector.add(v, this.cur_pos), this.type.coloring, this.pg));
         }
     }
 
@@ -33,6 +34,13 @@ class Shape {
         this.cur_pos.add(createVector(1,0));
         for(let block of this.blocks){
             block.mvright();
+        }
+    }
+
+    mvvect(vect){
+        this.cur_pos.add(vect);
+        for(let block of this.blocks){
+            block.mvvect(vect);
         }
     }
 
@@ -97,5 +105,21 @@ class Shape {
             current.push(b.get_pos());
         }
         return current;
+    }
+
+    get_type(){
+        return this.type;
+    }
+
+    set_color(c){
+        for(let b of this.blocks){
+            b.set_color(c);
+        }
+    }
+
+    reset_color(){
+        for(let b of this.blocks){
+            b.set_color(this.type.coloring);
+        }
     }
 }

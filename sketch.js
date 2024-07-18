@@ -1,23 +1,31 @@
-const LONG_INTERVAL = 120;
-const INTERVAL = 40;
+const LONG_INTERVAL = 125;
+const INTERVAL = 30;
+const AUTO_INTERVAL = 600;
+const DOWN_INTERVAL = 40;
 const GRID_WIDTH = 10;
 const GRID_HEIGHT = 20;
 const B_SIZE = 30;
+const NUM_NEXT = 5;
 
 let font;
+let held_canvas;
+let next_canvas;
+let held_piece;
+let next_pieces = [];
+let next_shapes = [];
 let score = 0;
 let orientations;
 let shapey;
-let preview_shape;
 let down_time = 0;
+let auto_down_time = 0;
 let left_time = 0;
 let right_time = 0;
 let long_time = 0;
 let dead = [];
 let first_left = true;
 let first_right = true;
+let has_switched = false;
 let kill = false;
-
 
 function preload(){
     font = loadFont('/assets/cool_font.otf');
@@ -86,37 +94,51 @@ function setup(){
     ]
 
     // play area
-    window.canvas = createCanvas(GRID_WIDTH * B_SIZE + floor(GRID_WIDTH / 2) * B_SIZE * 2, GRID_HEIGHT * B_SIZE);
+    window.canvas = createCanvas(GRID_WIDTH * B_SIZE * 2, GRID_HEIGHT * B_SIZE);
+    held_canvas = createGraphics(floor(GRID_HEIGHT / 4) * B_SIZE, floor(GRID_HEIGHT / 4)  * B_SIZE - B_SIZE);
+    next_canvas = createGraphics(floor(GRID_HEIGHT / 4) * B_SIZE, GRID_WIDTH * 1.5 * B_SIZE);
+
     window.canvas.addClass('my_canvas');
-    shapey = draw_block(floor(GRID_WIDTH / 3), 1, orientations[floor(random(orientations.length))]);
-    preview_shape = orientations[floor(random(orientations.length))];
+    shapey = draw_block(floor(GRID_WIDTH / 3), 0, orientations[floor(random(orientations.length))]);
+
+    // populates next_pieces and next_shapes array
+    for(let i = 0; i < NUM_NEXT; i++){
+        next_pieces.push(orientations[floor(random(orientations.length))]);
+    }
+
+    let modx,mody;
+    for(let j = 0; j < NUM_NEXT; j++){
+        modx = 0;
+        mody = 0;
+        if(next_pieces[j] == orientations[1]){
+            modx = -0.5;
+            mody = -0.5;
+        }
+        else if(next_pieces[j] == orientations[0]){
+            modx = 0.5;
+        }
+        next_shapes.push(draw_block(1 + modx, 3 * j + 0.5 + mody, next_pieces[j], next_canvas));
+    }
 
     centerCanvas();
 
     textFont(font);
-    textSize(32);
+    textSize(B_SIZE);
     textAlign(CENTER, CENTER);
 
-    // preview
-    // createPreview();
-
-    // held
-    // createHeld();
 }
 
 function draw(){
     background(220);
-    
-    text('HOLD', B_SIZE * GRID_WIDTH / 4, B_SIZE);
+
+    createHold();
+    createInstructions();
 
     translate(floor(GRID_WIDTH / 2) * B_SIZE, 0);
 
-    text('SCORE', B_SIZE * GRID_WIDTH + B_SIZE * GRID_WIDTH / 4, B_SIZE);
-    text(score, B_SIZE * GRID_WIDTH + B_SIZE * GRID_WIDTH / 4, B_SIZE * 2.5);
-
-    text('NEXT', B_SIZE * GRID_WIDTH + B_SIZE * GRID_WIDTH / 4, B_SIZE * floor(GRID_HEIGHT / 4));
-
+    createNext();
     createGrid();
+
     for(let j of dead){
         j.draw();
     }
@@ -127,13 +149,38 @@ function draw(){
             dead.push(shapey.blocks[block]);
         }
         line_clear();
-        shapey = draw_block(floor(GRID_WIDTH/3), 1, orientations[floor(random(orientations.length))]);
+        if (held_piece) held_piece.reset_color();
+        has_switched = false;
+        shapey = draw_block(floor(GRID_WIDTH/3), 0, next_piece());
+        check_lose();
         kill = false;
     }
     else{
         movement();
     }
     
+}
+
+function createHold(){
+    text('HOLD', B_SIZE * GRID_WIDTH / 4, B_SIZE);
+    held_canvas.background(255);
+    if (held_piece){
+        held_piece.draw();
+    }
+    image(held_canvas, 0, 2 * B_SIZE);
+}
+
+function createNext(){
+    push();
+    translate(B_SIZE * GRID_WIDTH, B_SIZE);
+    text('NEXT', B_SIZE * GRID_WIDTH / 4, 0);
+    next_canvas.background(255);
+    translate(0,B_SIZE);
+    for(let s of next_shapes){
+        s.draw();
+    }
+    image(next_canvas, 0, 0);
+    pop();
 }
 
 function createGrid(){
@@ -149,7 +196,13 @@ function createGrid(){
     pop();
 }
 
-
+function createInstructions(){
+    push();
+    textSize(floor(B_SIZE / 2));
+    textAlign(LEFT, TOP);
+    text('UP --\nROTATE\n\nDOWN --\nSLOW DROP\n\nLEFT+RIGHT --\nHORIZONTAL\n\nSPACE --\nHARD DROP\n\nC --\nHOLD', B_SIZE / 2, B_SIZE * GRID_HEIGHT / 2,floor(GRID_HEIGHT / 3.5) * B_SIZE);
+    pop();
+}
 
 function centerCanvas(){
     let x = (windowWidth - width) / 2;
@@ -161,7 +214,7 @@ function windowResized() {
     centerCanvas();
 }
 
-const draw_block = (x, y, shape) => new Shape(createVector(x, y), shape);
+const draw_block = (x, y, shape, pg=window) => new Shape(createVector(x, y), shape, pg);
 
 function keyPressed() {
     
@@ -188,14 +241,25 @@ function keyPressed() {
         first_right = true;
         if (check_valid(2)){shapey.mvright();}
     }
+
+    // c (for holding)
+    if (keyCode == '67'){
+        add_held();
+    }
 }
 
 function movement() {
     let currentTime = millis();
     // down
+
+    if(currentTime - auto_down_time >= AUTO_INTERVAL){
+        if(check_valid(0)) shapey.mvdwn();
+        auto_down_time = currentTime;
+    }
+
     if (keyIsDown(40)){
-        if (currentTime - down_time >= INTERVAL) {
-            if(check_valid(0)){shapey.mvdwn();}
+        if (currentTime - down_time >= DOWN_INTERVAL) {
+            if(check_valid(0)) shapey.mvdwn();
             down_time = currentTime;
         }
     }
@@ -207,7 +271,7 @@ function movement() {
             first_left = false;
         }
         else if (currentTime - left_time >= INTERVAL && currentTime - long_time >= LONG_INTERVAL) {
-            if (check_valid(1)){shapey.mvleft();}
+            if (check_valid(1)) shapey.mvleft();
             left_time = currentTime;
         }
     }
@@ -219,7 +283,7 @@ function movement() {
             first_right = false;
         }
         else if (currentTime - right_time >= INTERVAL && currentTime - long_time >= LONG_INTERVAL) {
-            if (check_valid(2)){shapey.mvright();}
+            if (check_valid(2)) shapey.mvright();
             right_time = currentTime;
         }
     }
@@ -260,13 +324,12 @@ function line_clear(){
             counts[y_pos] = 1;
         }
     }
-    let num = 0;
     let removed = [];
     for(let key in counts){
         
         if(counts[key] == GRID_WIDTH){
             removed.push(key);
-            num++;
+            score++;
             for(let i = 0; i < dead.length; i++){
                 if(dead[i].get_pos().y == Number(key)){
                     dead.splice(i, 1);
@@ -286,4 +349,71 @@ function line_clear(){
             }
         }
     }
+}
+
+function add_held(){
+    let shape_type = shapey.get_type();
+    if(has_switched) return;
+
+    has_switched = true;
+
+    if(!held_piece){
+        held_piece = draw_block(1,1, shape_type, held_canvas);
+        
+        shapey = draw_block(floor(GRID_WIDTH/3), 0, next_piece());
+    }
+    else{
+        let temp = held_piece.get_type();
+        held_piece = draw_block(1,1, shape_type, held_canvas);
+        shapey = draw_block(floor(GRID_WIDTH/3), 0, temp);
+    }
+    if(held_piece && held_piece.get_type() == orientations[1]){
+        held_piece.mvvect(createVector(-0.5,-0.5));
+    }
+    else if(held_piece && held_piece.get_type() == orientations[0]){
+        held_piece.mvvect(createVector(0.5,0));
+    }
+    held_piece.set_color(color(100));
+}
+
+function next_piece(){
+    let modx = 0;
+    let mody = 0;
+    let next = next_pieces.shift();
+    next_shapes.shift();
+    let new_orientation = orientations[floor(random(orientations.length))];
+    next_pieces.push(new_orientation);
+
+    for(let shape of next_shapes){
+        shape.mvvect(createVector(0,-3));
+    }
+
+    if(new_orientation == orientations[1]){
+        modx = -0.5;
+        mody = -0.5;
+    }
+    else if(new_orientation == orientations[0]){
+        modx = 0.5;
+    }
+
+    next_shapes.push(draw_block(1 + modx, 3 * (NUM_NEXT-1) + 0.5 + mody, new_orientation, next_canvas));
+    return next;
+}
+
+function check_lose(){
+    for(let b of shapey.blocks){
+        let pos = b.get_pos();
+        for(let i = 0; i < dead.length; i++){
+            if(p5.Vector.equals(pos, dead[i].get_pos())){
+                dead.splice(0,dead.length);
+                held_piece = null;
+                score = 0;
+                return;
+            }
+        }
+    }
+}
+
+function create_outline(){
+    
 }
