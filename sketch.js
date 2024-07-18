@@ -1,12 +1,21 @@
+const LONG_INTERVAL = 120;
+const INTERVAL = 40;
+const GRID_WIDTH = 10;
+const GRID_HEIGHT = 20;
+const B_SIZE = 30;
+
 let orientations;
 let shapey;
 let down_time = 0;
 let left_time = 0;
 let right_time = 0;
-let interval = 50;
+let long_time = 0;
 let dead = [];
-let grid_width = 20;
-let grid_height = 28;
+let first_left = true;
+let first_right = true;
+let kill = false;
+
+
 
 function setup(){
     /*
@@ -30,7 +39,7 @@ function setup(){
         // shape_I
         {
             positions: [createVector(0,1), createVector(1, 1), createVector(2, 1), createVector(3, 1)],
-            coloring: color(60, 240, 180),
+            coloring: color(56, 196, 236),
             rotate_pos: createVector(1.5, 0.5)
         },
 
@@ -70,11 +79,19 @@ function setup(){
         }
     ]
 
-    window.canvas = createCanvas(grid_width * B_SIZE, grid_height * B_SIZE);
+    // play area
+    window.canvas = createCanvas(GRID_WIDTH * B_SIZE, GRID_HEIGHT * B_SIZE);
     window.canvas.addClass('my_canvas');
-    shapey = drawBlock(1, 1, orientations[6]);
+    shapey = draw_block(1, 1, orientations[floor(random(orientations.length))]);
 
     centerCanvas();
+
+    // preview
+    // createPreview();
+
+    // held
+    // createHeld();
+
 }
 
 function draw(){
@@ -84,16 +101,16 @@ function draw(){
     }
     shapey.draw();
 
-    let col = check_collide();
-
-    if(col == 1){
+    if(kill){
         for(let block = 0; block < shapey.blocks.length; block++){
             dead.push(shapey.blocks[block]);
         }
-        shapey = drawBlock(1, 1, orientations[floor(random(orientations.length))]);
+        line_clear();
+        shapey = draw_block(floor(GRID_WIDTH/3), 1, orientations[floor(random(orientations.length))]);
+        kill = false;
     }
     else{
-        movement(col);
+        movement();
     }
 }
 
@@ -107,76 +124,129 @@ function windowResized() {
     centerCanvas();
 }
 
-function drawBlock(x, y, shape) {
-    return new Shape(createVector(x, y), shape);
-}
+const draw_block = (x, y, shape) => new Shape(createVector(x, y), shape);
 
 function keyPressed() {
-
+    
+    // up arrow
     if (keyCode == '38') {
-        shapey.rotate();
+        if(check_valid(3)){shapey.rotate();}
     }
 
+    // spacebar
     if (keyCode == '32') {
-        while (check_collide() != 1){
+        while (check_valid(0)){
             shapey.mvdwn();
         }
     }
+
+    // left
+    if (keyCode == '37') {
+        first_left = true;
+        if (check_valid(1)){shapey.mvleft();}
+    }
+
+    // right
+    if (keyCode == '39') {
+        first_right = true;
+        if (check_valid(2)){shapey.mvright();}
+    }
 }
 
-function movement(num) {
-    
+function movement() {
     let currentTime = millis();
     // down
     if (keyIsDown(40)){
-        if (currentTime - down_time >= interval) {
-            shapey.mvdwn();
+        if (currentTime - down_time >= INTERVAL) {
+            if(check_valid(0)){shapey.mvdwn();}
             down_time = currentTime;
         }
     }
 
     // left
-    if (keyIsDown(37) && num != 2){
-        if (currentTime - left_time >= interval) {
-            shapey.mvleft();
+    if (keyIsDown(37)){
+        if (first_left) {
+            long_time = currentTime;
+            first_left = false;
+        }
+        else if (currentTime - left_time >= INTERVAL && currentTime - long_time >= LONG_INTERVAL) {
+            if (check_valid(1)){shapey.mvleft();}
             left_time = currentTime;
         }
     }
 
     // right
-    if (keyIsDown(39) && num != 3){
-        if (currentTime - right_time >= interval) {
-            shapey.mvright();
+    if (keyIsDown(39)){
+        if (first_right) {
+            long_time = currentTime;
+            first_right = false;
+        }
+        else if (currentTime - right_time >= INTERVAL && currentTime - long_time >= LONG_INTERVAL) {
+            if (check_valid(2)){shapey.mvright();}
             right_time = currentTime;
         }
     }
 }
 
-function check_collide() {
-    let future_positions = shapey.future_pos();
-    let current = shapey.get_pos();
-
-    // lower bound
-    for(let i = 0; i < future_positions.length; i++){
-        let y_pos = future_positions[i].y;
-        if(y_pos >= grid_height){
-            return 1;
+function check_valid(c){
+    const future_positions = shapey.future_pos(c);
+    
+    for(let pos of future_positions){
+        if(pos.y + 1 > GRID_HEIGHT){
+            if(c == 0){kill = true;}
+            return false;
         }
-        for(let k = 0; k < dead.length; k++){
-            if(p5.Vector.equals(future_positions[i], dead[k].get_pos())){
-                return 1;
+        if(pos.x < 0){
+            return false;
+        }
+        if(pos.x + 1 > GRID_WIDTH){
+            return false;
+        }
+        for(let i = 0; i < dead.length; i++){
+            if(p5.Vector.equals(pos, dead[i].get_pos())){
+                if(c == 0){kill = true;}
+                return false;
             }
         }
     }
+    return true;
+}
 
-    // left and right bounds
-    for(let j = 0; j < current.length; j++){
-        if(current[j].x <= 0){
-            return 2;
+function line_clear(){
+    let counts = {};
+    for(let b of dead) {
+        let y_pos = b.get_pos().y;
+        if(counts[y_pos]){
+            counts[y_pos]++;
         }
-        if(current[j].x + 1 >= grid_width){
-            return 3;
+        else{
+            counts[y_pos] = 1;
         }
     }
-    return 0;
+    let num = 0;
+    let removed = [];
+    for(let key in counts){
+        
+        if(counts[key] == GRID_WIDTH){
+            removed.push(key);
+            num++;
+            for(let i = 0; i < dead.length; i++){
+                if(dead[i].get_pos().y == Number(key)){
+                    dead.splice(i, 1);
+                    i--;
+                }
+            }
+        }
+        
+    }
+
+    removed.sort((a,b) => a - b);
+
+    for(let line of removed){
+        for(let i = 0; i < dead.length; i++){
+            if(Number(line) > dead[i].get_pos().y){
+                dead[i].mvdwn();
+            }
+        }
+    }
 }

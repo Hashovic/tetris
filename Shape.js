@@ -57,13 +57,37 @@ class Shape {
         }
     }
 
-    // gets the future positions of the shape for collission detection purposes
-    future_pos() {
+    // gets the future positions of the shape for collision detection purposes
+    future_pos(c) {
         let future = [];
-        for(let b of this.blocks){
-            future.push(b.get_pos().add(createVector(0, 1)));
+        switch(c){
+            case 0: // down case
+                for(let b of this.blocks){
+                    future.push(b.get_pos().add(createVector(0, 1)));
+                }
+                return future;
+
+            case 1: // left case
+                for(let b of this.blocks){
+                    future.push(b.get_pos().add(createVector(-1, 0)));
+                }
+                return future;
+
+            case 2: // right case
+                for(let b of this.blocks){
+                    future.push(b.get_pos().add(createVector(1, 0)));
+                }
+                return future;
+            
+            case 3: // rotate case (simple) *functionality explained in rotate method
+                const center = p5.Vector.add(this.cur_pos, this.type.rotate_pos);
+                for(let b of this.blocks) {
+                    let relativePos = p5.Vector.sub(b.get_pos(), center);
+                    let rotatedPos = createVector(-relativePos.y, relativePos.x);
+                    future.push(p5.Vector.add(rotatedPos, center));
+                }
+                return future;
         }
-        return future;
     }
 
     // gets current position

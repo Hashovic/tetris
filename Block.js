@@ -1,5 +1,3 @@
-const B_SIZE = 25;
-
 class Block {
     constructor(pos, coloring) {
         this.cur_pos = pos;
@@ -10,8 +8,7 @@ class Block {
         push();
         let pos = this.cur_pos.copy().mult(B_SIZE);
         fill(this.color);
-        stroke(0);
-        strokeWeight(1.5);
+        strokeWeight(0);
         square(pos.x, pos.y, B_SIZE);
         pop();
     }
