@@ -4,8 +4,11 @@ const GRID_WIDTH = 10;
 const GRID_HEIGHT = 20;
 const B_SIZE = 30;
 
+let font;
+let score = 0;
 let orientations;
 let shapey;
+let preview_shape;
 let down_time = 0;
 let left_time = 0;
 let right_time = 0;
@@ -16,6 +19,9 @@ let first_right = true;
 let kill = false;
 
 
+function preload(){
+    font = loadFont('/assets/cool_font.otf');
+}
 
 function setup(){
     /*
@@ -80,22 +86,37 @@ function setup(){
     ]
 
     // play area
-    window.canvas = createCanvas(GRID_WIDTH * B_SIZE, GRID_HEIGHT * B_SIZE);
+    window.canvas = createCanvas(GRID_WIDTH * B_SIZE + floor(GRID_WIDTH / 2) * B_SIZE * 2, GRID_HEIGHT * B_SIZE);
     window.canvas.addClass('my_canvas');
-    shapey = draw_block(1, 1, orientations[floor(random(orientations.length))]);
+    shapey = draw_block(floor(GRID_WIDTH / 3), 1, orientations[floor(random(orientations.length))]);
+    preview_shape = orientations[floor(random(orientations.length))];
 
     centerCanvas();
+
+    textFont(font);
+    textSize(32);
+    textAlign(CENTER, CENTER);
 
     // preview
     // createPreview();
 
     // held
     // createHeld();
-
 }
 
 function draw(){
     background(220);
+    
+    text('HOLD', B_SIZE * GRID_WIDTH / 4, B_SIZE);
+
+    translate(floor(GRID_WIDTH / 2) * B_SIZE, 0);
+
+    text('SCORE', B_SIZE * GRID_WIDTH + B_SIZE * GRID_WIDTH / 4, B_SIZE);
+    text(score, B_SIZE * GRID_WIDTH + B_SIZE * GRID_WIDTH / 4, B_SIZE * 2.5);
+
+    text('NEXT', B_SIZE * GRID_WIDTH + B_SIZE * GRID_WIDTH / 4, B_SIZE * floor(GRID_HEIGHT / 4));
+
+    createGrid();
     for(let j of dead){
         j.draw();
     }
@@ -112,12 +133,28 @@ function draw(){
     else{
         movement();
     }
+    
 }
+
+function createGrid(){
+    push();
+    stroke(0, 50);
+    strokeWeight(1);
+    for(let i = 0; i <= GRID_WIDTH; i++){
+        line(B_SIZE * i, 0, B_SIZE * i, GRID_HEIGHT * B_SIZE);
+    }
+    for (let j = 1; j < GRID_HEIGHT; j++){
+        line(0,B_SIZE * j, GRID_WIDTH * B_SIZE, B_SIZE * j);
+    }
+    pop();
+}
+
+
 
 function centerCanvas(){
     let x = (windowWidth - width) / 2;
     let y = (windowHeight - height) / 2;
-    window.canvas.position(x, y)
+    window.canvas.position(x,y);
 }
 
 function windowResized() {
