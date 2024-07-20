@@ -4,6 +4,7 @@ class Shape {
         this.type = shape_type;
         this.blocks = [];
         this.pg = pg;
+        this.rotate_amount = 0;
 
         for(let v of this.type.positions){
             this.blocks.push(new Block(p5.Vector.add(v, this.cur_pos), this.type.coloring, this.pg));
@@ -48,6 +49,7 @@ class Shape {
         // Finds the reference rotation block in comparison to the top-left
         // corner of the shape by adding the rotate_pos vector to the cur_pos vector
         const center = p5.Vector.add(this.cur_pos, this.type.rotate_pos);
+        this.rotate_amount++;
 
         // Iterates over all the blocks
         for (let block of this.blocks) {
@@ -107,6 +109,10 @@ class Shape {
         return current;
     }
 
+    get_cur_pos(){
+        return this.cur_pos.copy();
+    }
+
     get_type(){
         return this.type;
     }
@@ -121,5 +127,9 @@ class Shape {
         for(let b of this.blocks){
             b.set_color(this.type.coloring);
         }
+    }
+
+    get_rotate_amount(){
+        return this.rotate_amount % 4;
     }
 }

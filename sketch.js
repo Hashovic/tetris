@@ -16,6 +16,7 @@ let next_shapes = [];
 let score = 0;
 let orientations;
 let shapey;
+let outline;
 let down_time = 0;
 let auto_down_time = 0;
 let left_time = 0;
@@ -99,7 +100,11 @@ function setup(){
     next_canvas = createGraphics(floor(GRID_HEIGHT / 4) * B_SIZE, GRID_WIDTH * 1.5 * B_SIZE);
 
     window.canvas.addClass('my_canvas');
-    shapey = draw_block(floor(GRID_WIDTH / 3), 0, orientations[floor(random(orientations.length))]);
+    let o = orientations[floor(random(orientations.length))];
+    let o_color = o.coloring;
+    shapey = draw_block(floor(GRID_WIDTH / 3), 0, o);
+    outline = draw_block(floor(GRID_WIDTH / 3), 0, o);
+    draw_outline();
 
     // populates next_pieces and next_shapes array
     for(let i = 0; i < NUM_NEXT; i++){
@@ -142,6 +147,8 @@ function draw(){
     for(let j of dead){
         j.draw();
     }
+
+    outline.draw();
     shapey.draw();
 
     if(kill){
@@ -151,8 +158,13 @@ function draw(){
         line_clear();
         if (held_piece) held_piece.reset_color();
         has_switched = false;
-        shapey = draw_block(floor(GRID_WIDTH/3), 0, next_piece());
+        let next = next_piece();
+        shapey = draw_block(floor(GRID_WIDTH/3), 0, next);
+        outline = draw_block(floor(GRID_WIDTH / 3), 0, next);
+
         check_lose();
+        draw_outline();
+
         kill = false;
     }
     else{
@@ -220,7 +232,10 @@ function keyPressed() {
     
     // up arrow
     if (keyCode == '38') {
-        if(check_valid(3)){shapey.rotate();}
+        if(check_valid(3)){
+            shapey.rotate();
+            draw_outline();
+        }
     }
 
     // spacebar
@@ -233,13 +248,19 @@ function keyPressed() {
     // left
     if (keyCode == '37') {
         first_left = true;
-        if (check_valid(1)){shapey.mvleft();}
+        if (check_valid(1)){
+            shapey.mvleft();
+            draw_outline();
+        }
     }
 
     // right
     if (keyCode == '39') {
         first_right = true;
-        if (check_valid(2)){shapey.mvright();}
+        if (check_valid(2)){
+            shapey.mvright();
+            draw_outline();
+        }
     }
 
     // c (for holding)
@@ -271,7 +292,10 @@ function movement() {
             first_left = false;
         }
         else if (currentTime - left_time >= INTERVAL && currentTime - long_time >= LONG_INTERVAL) {
-            if (check_valid(1)) shapey.mvleft();
+            if (check_valid(1)){
+                shapey.mvleft();
+                draw_outline();
+            }
             left_time = currentTime;
         }
     }
@@ -283,18 +307,21 @@ function movement() {
             first_right = false;
         }
         else if (currentTime - right_time >= INTERVAL && currentTime - long_time >= LONG_INTERVAL) {
-            if (check_valid(2)) shapey.mvright();
+            if (check_valid(2)){
+                shapey.mvright();
+                draw_outline();
+            }
             right_time = currentTime;
         }
     }
 }
 
-function check_valid(c){
-    const future_positions = shapey.future_pos(c);
+function check_valid(c, s=shapey){
+    const future_positions = s.future_pos(c);
     
     for(let pos of future_positions){
         if(pos.y + 1 > GRID_HEIGHT){
-            if(c == 0){kill = true;}
+            if(c == 0 && s == shapey){kill = true;}
             return false;
         }
         if(pos.x < 0){
@@ -305,7 +332,7 @@ function check_valid(c){
         }
         for(let i = 0; i < dead.length; i++){
             if(p5.Vector.equals(pos, dead[i].get_pos())){
-                if(c == 0){kill = true;}
+                if(c == 0 && s == shapey){kill = true;}
                 return false;
             }
         }
@@ -337,7 +364,6 @@ function line_clear(){
                 }
             }
         }
-        
     }
 
     removed.sort((a,b) => a - b);
@@ -349,6 +375,8 @@ function line_clear(){
             }
         }
     }
+
+    return removed.length;
 }
 
 function add_held(){
@@ -360,12 +388,19 @@ function add_held(){
     if(!held_piece){
         held_piece = draw_block(1,1, shape_type, held_canvas);
         
-        shapey = draw_block(floor(GRID_WIDTH/3), 0, next_piece());
+        let next = next_piece();
+        shapey = draw_block(floor(GRID_WIDTH/3), 0, next);
+        outline = draw_block(floor(GRID_WIDTH/3), 0, next);
+
+        draw_outline();
     }
     else{
         let temp = held_piece.get_type();
         held_piece = draw_block(1,1, shape_type, held_canvas);
         shapey = draw_block(floor(GRID_WIDTH/3), 0, temp);
+        outline = draw_block(floor(GRID_WIDTH/3), 0, temp);
+
+        draw_outline();
     }
     if(held_piece && held_piece.get_type() == orientations[1]){
         held_piece.mvvect(createVector(-0.5,-0.5));
@@ -414,6 +449,23 @@ function check_lose(){
     }
 }
 
-function create_outline(){
-    
+function draw_outline(){
+    let pos = shapey.get_cur_pos();
+    let t = shapey.get_type();
+    outline = draw_block(pos.x, pos.y, t);
+
+    let r = shapey.get_rotate_amount();
+    for(let i = 0; i < r; i++){
+        outline.rotate();
+    }
+
+    while (check_valid(0, outline)){
+        outline.mvdwn();
+    }
+
+    let c = color(100);
+    push();
+    c.setAlpha(75);
+    outline.set_color(c);
+    pop();
 }
