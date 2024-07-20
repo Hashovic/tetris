@@ -1,5 +1,6 @@
 class Block {
-    constructor(pos, coloring, pg=window) {
+    constructor(pos, coloring, instance, pg) {
+        this.p = instance;
         this.cur_pos = pos;
         this.color = coloring;
         this.pg = pg;
@@ -15,15 +16,15 @@ class Block {
     }
 
     mvdwn() {
-        this.cur_pos.add(createVector(0,1));
+        this.cur_pos.add(this.p.createVector(0,1));
     }
 
     mvleft() {
-        this.cur_pos.add(createVector(-1,0));
+        this.cur_pos.add(this.p.createVector(-1,0));
     }
 
     mvright() {
-        this.cur_pos.add(createVector(1,0));
+        this.cur_pos.add(this.p.createVector(1,0));
     }
 
     mvvect(vect){
