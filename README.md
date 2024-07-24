@@ -1,4 +1,4 @@
-### js_tetris
+# Tetris
  
 TO-DO:
 *-* add held window
