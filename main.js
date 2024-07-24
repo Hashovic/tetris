@@ -10,23 +10,22 @@ document.addEventListener('DOMContentLoaded', function(){
     const gameScreen = document.getElementById('game-screen');
     const gameOverScreen = document.getElementById('game-over');
 
-    if (!singlePlayerButton || !multiPlayerButton || !startScreen || !gameScreen) {
-        console.error('One or more elements not found.');
-        return;
-    }
-
+    // Checks if single player was chosen
     singlePlayerButton.addEventListener('click', function(){
         startGame(true);
     })
 
+    // Checks if multi player was chosen
     multiPlayerButton.addEventListener('click', function(){
         startGame(false);
     })
 
+    // Checks when restart button is clicked
     restartButton.addEventListener('click', function(){
         restartGame();
     })
 
+    // Starts the game as single or multi player
     function startGame(version){
         startScreen.style.display = 'none';
         gameScreen.style.display = 'flex';
@@ -43,6 +42,7 @@ document.addEventListener('DOMContentLoaded', function(){
         }
     }
 
+    // Restarts the game to start screen
     const restartGame = () => {
         startScreen.style.display = 'flex';
         gameScreen.style.display = 'none';
@@ -50,6 +50,8 @@ document.addEventListener('DOMContentLoaded', function(){
     }
 })
 
+// Ends the p5 tetris instances and shows the game over screen
+// Shows score for single player and who won for multi player
 const gameOver = (player, s) => {
     const gameScreen = document.getElementById('game-screen');
     const gameOverScreen = document.getElementById('game-over');

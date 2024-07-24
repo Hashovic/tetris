@@ -1,4 +1,5 @@
 class Shape {
+    // Constructs shape object with a start_position(as a vector), type and where to draw it (i.e. canvas)
     constructor(start_pos, shape_type, pg, instance) {
         this.p = instance;
         this.cur_pos = start_pos;
@@ -7,17 +8,20 @@ class Shape {
         this.pg = pg;
         this.rotate_amount = 0;
 
+        // Creates blocks to make up the shape
         for(let v of this.type.positions){
             this.blocks.push(new Block(this.p.createVector(v.x,v.y).add(this.cur_pos), this.type.coloring, this.p, this.pg));
         }
     }
 
+    // Draws the shape
     draw() {
         for(let b of this.blocks){
             b.draw();
         }
     }
 
+    // Moves the shape down one block length
     mvdwn() {
         this.cur_pos.add(this.p.createVector(0,1));
         for(let block of this.blocks){
@@ -25,6 +29,7 @@ class Shape {
         }
     }
 
+    // Moves the shape left
     mvleft() {
         this.cur_pos.add(this.p.createVector(-1,0));
         for(let block of this.blocks){
@@ -32,6 +37,7 @@ class Shape {
         }
     }
 
+    // Moves the shape right
     mvright() {
         this.cur_pos.add(this.p.createVector(1,0));
         for(let block of this.blocks){
@@ -39,6 +45,7 @@ class Shape {
         }
     }
 
+    // Moves the shape by a vector amount
     mvvect(vect){
         this.cur_pos.add(vect);
         for(let block of this.blocks){
@@ -46,6 +53,7 @@ class Shape {
         }
     }
 
+    // Rotates the shape
     rotate() {
         // Finds the reference rotation block in comparison to the top-left
         // corner of the shape by adding the rotate_pos vector to the cur_pos vector
@@ -69,7 +77,7 @@ class Shape {
         }
     }
 
-    // gets the future positions of the shape for collision detection purposes
+    // Gets the future positions of the shape for collision detection purposes
     future_pos(c) {
         let future = [];
         switch(c){
@@ -102,7 +110,7 @@ class Shape {
         }
     }
 
-    // gets current position
+    // Gets current position of each block
     get_pos(){
         let current = [];
         for(let b of this.blocks){
@@ -111,26 +119,31 @@ class Shape {
         return current;
     }
 
+    // Gets the current position of the shape
     get_cur_pos(){
         return this.cur_pos.copy();
     }
 
+    // Gets the type of shape
     get_type(){
         return this.type;
     }
 
+    // Sets the color of the shape
     set_color(c){
         for(let b of this.blocks){
             b.set_color(c);
         }
     }
 
+    // Returns the shape color to the default
     reset_color(){
         for(let b of this.blocks){
             b.set_color(this.type.coloring);
         }
     }
 
+    // Returns rotation state
     get_rotate_amount(){
         return this.rotate_amount % 4;
     }

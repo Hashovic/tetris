@@ -1,15 +1,20 @@
-const LONG_INTERVAL = 125;
-const INTERVAL = 30;
-const AUTO_INTERVAL = 600;
-const DOWN_INTERVAL = 40;
+
+// *** (Multiplayer)
+
+// Global Constants + Multiplayer Values
+
+const LONG_INTERVAL = 125;  // For left and right delay
+const INTERVAL = 30;        // Left and right speed
+const AUTO_INTERVAL = 600;  // Auto down speed
+const DOWN_INTERVAL = 40;   // Down speed
 const GRID_WIDTH = 10;
 const GRID_HEIGHT = 20;
-const B_SIZE = 30;
-const NUM_NEXT = 5;
-let garbage = [0,0];
+const B_SIZE = 30;          // Size of grid blocks
+const NUM_NEXT = 5;         // Number of next pieces
+let garbage = [0,0];        // Garbage amounts for sending and receiving
 let isSinglePlayer = false;
 
-
+// Creates a p5 instance
 const tetris = p => {
     // CONTROLS
     p.rotate_key = '87';
@@ -19,6 +24,7 @@ const tetris = p => {
     p.hard_key = '86';
     p.hold_key = '67';
 
+    // Local Variables
     let font;
     p.canvas;
     p.held_canvas;
@@ -28,7 +34,7 @@ const tetris = p => {
     let next_shapes = [];
     let score = 0;
     let orientations;
-    let shapey;
+    let shapey; // Active Shape
     let outline;
     let down_time = 0;
     let auto_down_time = 0;
@@ -41,10 +47,12 @@ const tetris = p => {
     let has_switched = false;
     let kill = false;
 
+    // Runs before setup
     p.preload = () => {
         font = p.loadFont('/assets/cool_font.otf');
     }
 
+    // Runs one time prior to game start
     p.setup = () => {
         /*
             Creates all the different possible combinations of shapes using vectors provided by p5.js
@@ -145,20 +153,20 @@ const tetris = p => {
 
     }
 
+    // Game loop (Constantly loops)
     p.draw = () => {
         p.background(220);
 
         createHold();
         createInstructions();
 
-        if(!isSinglePlayer){
-            p.translate(p.floor(B_SIZE / 1.5), 0);
-            createGarbage();
-        }
+        p.translate(p.floor(B_SIZE / 1.5), 0);
+        createGarbage();
 
         p.translate(p.floor(GRID_WIDTH / 2) * B_SIZE, 0);
 
         createNext();
+        playerNum();
 
         createGrid();
 
@@ -214,6 +222,7 @@ const tetris = p => {
         
     }
 
+    // Draws the held piece
     function createHold(){
         p.text('HOLD', B_SIZE * GRID_WIDTH / 4, B_SIZE);
         p.held_canvas.background(255);
@@ -223,6 +232,7 @@ const tetris = p => {
         p.image(p.held_canvas, 0, 2 * B_SIZE);
     }
 
+    // *** Draws the red garbage bar
     function createGarbage(){
         let g_width = p.floor(B_SIZE / 1.5);
         let num_garbage = garbage[0];
@@ -236,6 +246,7 @@ const tetris = p => {
         p.pop();
     }
 
+    // *** Adds the garbage to the game
     function addGarbageBlocks(){
         let num_garbage = garbage[0];
         let hole = p.floor(p.random(GRID_WIDTH));
@@ -255,6 +266,7 @@ const tetris = p => {
         garbage[0] = 0;
     }
 
+    // *** Sends garbage to the opponent
     function sendGarbage(amount){
         if(amount <= garbage[0]){
             garbage[0] -= amount;
@@ -266,6 +278,7 @@ const tetris = p => {
         }
     }
 
+    // Draws the next shapes
     function createNext(){
         p.push();
         p.translate(B_SIZE * GRID_WIDTH, B_SIZE);
@@ -279,6 +292,17 @@ const tetris = p => {
         p.pop();
     }
 
+    // *** Shows player number
+    function playerNum(){
+        p.push();
+        p.translate(B_SIZE * GRID_WIDTH, p.next_canvas.height);
+        p.textAlign(p.LEFT, p.TOP);
+        p.textSize(26);
+        p.text("Player 1", p.floor(B_SIZE / 2), 2.5 * B_SIZE);
+        p.pop();
+    }
+
+    // Draws the grid
     function createGrid(){
         p.push();
         p.stroke(0, 50);
@@ -292,6 +316,7 @@ const tetris = p => {
         p.pop();
     }
 
+    // Writes the instructions
     function createInstructions(){
         p.push();
         p.textSize(p.floor(B_SIZE / 2));
@@ -300,18 +325,22 @@ const tetris = p => {
         p.pop();
     }
 
+    // Centers the canvas
     p.centerCanvas = () => {
         let x = (p.windowWidth) / 2 - p.width - B_SIZE;
         let y = (p.windowHeight - p.height) / 2;
         p.canvas.position(x,y);
     }
 
+    // Runs the center canvas method when window is resized
     p.windowResized = () => {
         p.centerCanvas();
     }
 
+    // Creates a shape object at position (x,y) with a certain shape type
     const draw_block = (x, y, shape, pg=p) => new Shape(p.createVector(x, y), shape, pg, p);
 
+    // Runs when a key is pressed
     p.keyPressed = () => {
         
         // w key
@@ -353,6 +382,7 @@ const tetris = p => {
         }
     }
 
+    // Deals with all the movement
     function movement() {
         let currentTime = p.millis();
         // down
@@ -400,6 +430,7 @@ const tetris = p => {
         }
     }
 
+    // Checks if a move is a valid move
     function check_valid(c, s=shapey){
         const future_positions = s.future_pos(c);
         
@@ -424,6 +455,8 @@ const tetris = p => {
         return true;
     }
 
+    // Checks if a line is cleared
+    // *** Returns lines cleared to be used for garbage sending
     function line_clear(){
         let counts = {};
         for(let b of dead) {
@@ -463,6 +496,7 @@ const tetris = p => {
         return removed.length;
     }
 
+    // Deals with adding a held piece
     function add_held(){
         let shape_type = shapey.get_type();
         if(has_switched) return;
@@ -495,6 +529,7 @@ const tetris = p => {
         held_piece.set_color(p.color(100));
     }
 
+    // Returns the next piece in the queue and moves the rest accordingly
     function next_piece(){
         let modx = 0;
         let mody = 0;
@@ -519,6 +554,7 @@ const tetris = p => {
         return next;
     }
 
+    // Checks for loss and calls window.gameOver method
     function check_lose(){
         for(let b of shapey.blocks){
             let pos = b.get_pos();
@@ -536,6 +572,7 @@ const tetris = p => {
         }
     }
 
+    // Draws the shadow shape
     function draw_outline(){
         let pos = shapey.get_cur_pos();
         let t = shapey.get_type();
@@ -558,7 +595,9 @@ const tetris = p => {
     }
 }
 
+// Creates a p5 instance (This instance is used for single player)
 const tetris2 = p => {
+    // CONTROLS
     p.rotate_key = '38';
     p.down_key = '40';
     p.left_key = '37';
@@ -566,6 +605,7 @@ const tetris2 = p => {
     p.hard_key = isSinglePlayer ? '32' :'188';
     p.hold_key = isSinglePlayer ? '67': '190';
 
+    // Local Variables
     let font;
     p.canvas;
     p.held_canvas;
@@ -575,7 +615,7 @@ const tetris2 = p => {
     let next_shapes = [];
     let score = 0;
     let orientations;
-    let shapey;
+    let shapey; // Active Shape
     let outline;
     let down_time = 0;
     let auto_down_time = 0;
@@ -588,10 +628,12 @@ const tetris2 = p => {
     let has_switched = false;
     let kill = false;
 
+    // Runs before setup
     p.preload = () => {
         font = p.loadFont('/assets/cool_font.otf');
     }
 
+    // Runs one time prior to game start
     p.setup = () => {
         /*
             Creates all the different possible combinations of shapes using vectors provided by p5.js
@@ -692,6 +734,7 @@ const tetris2 = p => {
 
     }
 
+    // Game loop (Constantly loops)
     p.draw = () => {
         p.background(220);
 
@@ -706,7 +749,12 @@ const tetris2 = p => {
         p.translate(p.floor(GRID_WIDTH / 2) * B_SIZE, 0);
 
         createNext();
-        createScore();
+        if(isSinglePlayer){
+            createScore();
+        }
+        else {
+            playerNum();
+        }
         createGrid();
 
         for(let j of dead){
@@ -761,6 +809,7 @@ const tetris2 = p => {
         
     }
 
+    // Draws the held piece
     function createHold(){
         p.text('HOLD', B_SIZE * GRID_WIDTH / 4, B_SIZE);
         p.held_canvas.background(255);
@@ -770,6 +819,7 @@ const tetris2 = p => {
         p.image(p.held_canvas, 0, 2 * B_SIZE);
     }
 
+    // *** Draws the red garbage bar
     function createGarbage(){
         let g_width = p.floor(B_SIZE / 1.5);
         let num_garbage = garbage[1];
@@ -783,6 +833,7 @@ const tetris2 = p => {
         p.pop();
     }
 
+    // *** Adds the garbage to the game
     function addGarbageBlocks(){
         let num_garbage = garbage[1];
         let hole = p.floor(p.random(GRID_WIDTH));
@@ -802,6 +853,7 @@ const tetris2 = p => {
         garbage[1] = 0;
     }
 
+    // *** Sends garbage to the opponent
     function sendGarbage(amount){
         if(amount <= garbage[1]){
             garbage[1] -= amount;
@@ -813,6 +865,7 @@ const tetris2 = p => {
         }
     }
 
+    // Draws the next shapes
     function createNext(){
         p.push();
         p.translate(B_SIZE * GRID_WIDTH, B_SIZE);
@@ -826,6 +879,7 @@ const tetris2 = p => {
         p.pop();
     }
 
+    // (Single Player exclusive) Draws the score
     function createScore() {
         p.push();
         p.translate(B_SIZE * GRID_WIDTH, p.next_canvas.height);
@@ -835,6 +889,17 @@ const tetris2 = p => {
         p.pop();
     }
 
+    // *** Shows player number
+    function playerNum(){
+        p.push();
+        p.translate(B_SIZE * GRID_WIDTH, p.next_canvas.height);
+        p.textAlign(p.LEFT, p.TOP);
+        p.textSize(26);
+        p.text("Player 2", p.floor(B_SIZE / 2), 2.5 * B_SIZE);
+        p.pop();
+    }
+
+    // Draws the grid
     function createGrid(){
         p.push();
         p.stroke(0, 50);
@@ -848,6 +913,7 @@ const tetris2 = p => {
         p.pop();
     }
 
+    // Writes the instructions
     function createInstructions(){
         p.push();
         p.textSize(p.floor(B_SIZE / 2));
@@ -857,18 +923,22 @@ const tetris2 = p => {
         p.pop();
     }
 
+    // Centers the canvas
     p.centerCanvas = () => {
         let x = isSinglePlayer ? (p.windowWidth - p.width) / 2 : (p.windowWidth - p.width) / 2 + p.width / 2 + B_SIZE;
         let y = (p.windowHeight - p.height) / 2;
         p.canvas.position(x,y);
     }
 
+    // Runs the center canvas method when window is resized
     p.windowResized = () => {
         p.centerCanvas();
     }
 
+    // Creates a shape object at position (x,y) with a certain shape type
     const draw_block = (x, y, shape, pg=p) => new Shape(p.createVector(x, y), shape, pg, p);
 
+    // Runs when a key is pressed
     p.keyPressed = () => {
         
         // w key
@@ -910,6 +980,7 @@ const tetris2 = p => {
         }
     }
 
+    // Deals with all the movement
     function movement() {
         let currentTime = p.millis();
         // down
@@ -957,6 +1028,7 @@ const tetris2 = p => {
         }
     }
 
+    // Checks if a move is a valid move
     function check_valid(c, s=shapey){
         const future_positions = s.future_pos(c);
         
@@ -981,6 +1053,8 @@ const tetris2 = p => {
         return true;
     }
 
+    // Checks if a line is cleared
+    // *** Returns lines cleared to be used for garbage sending
     function line_clear(){
         let counts = {};
         for(let b of dead) {
@@ -1020,6 +1094,7 @@ const tetris2 = p => {
         return removed.length;
     }
 
+    // Deals with adding a held piece
     function add_held(){
         let shape_type = shapey.get_type();
         if(has_switched) return;
@@ -1052,6 +1127,7 @@ const tetris2 = p => {
         held_piece.set_color(p.color(100));
     }
 
+    // Returns the next piece in the queue and adds new piece
     function next_piece(){
         let modx = 0;
         let mody = 0;
@@ -1076,6 +1152,7 @@ const tetris2 = p => {
         return next;
     }
 
+    // Checks for loss and calls window.gameOver method
     function check_lose(){
         for(let b of shapey.blocks){
             let pos = b.get_pos();
@@ -1093,6 +1170,7 @@ const tetris2 = p => {
         }
     }
 
+    // Draws the shadow shape to help with placement
     function draw_outline(){
         let pos = shapey.get_cur_pos();
         let t = shapey.get_type();
@@ -1114,5 +1192,3 @@ const tetris2 = p => {
         p.pop();
     }
 }
-
-
