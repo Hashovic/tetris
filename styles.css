@@ -1,3 +1,8 @@
+@font-face {
+    font-family: 'the_font';
+    src: url('assets/start_page1.ttf') format('truetype');
+}
+
 body, html {
     height: 100%;
     margin: 0;
@@ -6,6 +11,137 @@ body, html {
     align-items: center;
 }
 
+#start-screen {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    height: 100%;
+    justify-content: center; 
+    align-items: center; 
+}
+
+#buttons {
+    margin-top: 20px;
+    display: flex;
+    flex-direction: row;
+    gap: 20px;
+}
+
+#start-screen h1 {
+    font-size: 7em;
+    margin-bottom: 20px;
+    letter-spacing: normal;
+}
+
+#start-screen h2 {
+    font-size: 3em;
+    margin-top: 0;
+    margin-bottom: 20px;
+}
+
+#start-screen h1, #start-screen h2 {
+    font-family: 'the_font';
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+}
+
+.start-button {
+    width: 50%;
+    height: auto;
+    margin: 20px 0;
+    font-size: 3em;
+    border-radius: 10px;
+    background-color: #6f6f6f;
+    color: white;
+    cursor: pointer;
+    transition: background-color 0.3s;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    font-family: 'the_font';
+}
+
+#game-over {
+    display: none;
+    position: fixed;
+    top: 10%;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 80%;
+    height: auto;
+    color: black;
+    text-align: center;
+    border-radius: 10px;
+    padding: 20px;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+}
+
+#game-over h1 {
+    font-size: 7em;
+    margin-bottom: 0px;
+    font-family: 'the_font';
+}
+
+#game-over h2 {
+    display: none;
+    font-size: 5em;
+    margin-bottom: 0px;
+    margin-top: 0px;
+    font-family: 'the_font';
+}
+
+#restart-button{
+    width: auto;
+    height: auto;
+    margin: 0 auto;
+    font-size: 3em;
+    border-radius: 10px;
+    background-color: #6f6f6f;
+    color: white;
+    cursor: pointer;
+    transition: background-color 0.3s;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    font-family: 'the_font';
+}
+
+#restart-button:hover {
+    background-color: #919191;
+}
+
+.start-button:hover {
+    background-color: #919191;
+}
+
 .my_canvas {
     border: 2px solid black;
 }
+
+#game-screen {
+    display: none;
+    width: 100%;
+    height: 100%;
+    background-color: transparent;
+}
+
+#player1, #player2 {
+    background-color: transparent;
+}
+
+.tetris-letter {
+    display: inline-block;
+}
+
+.tetris-letter.t {color: rgb(255, 80, 80);}
+
+.tetris-letter.e {color: rgb(220, 90, 240);}
+
+.tetris-letter.r {color: rgb(56, 196, 236);}
+
+.tetris-letter.i {color: rgb(245, 140, 80);}
+
+.tetris-letter.s {color: rgb(240, 220, 60);}

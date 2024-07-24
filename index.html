@@ -4,15 +4,32 @@
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>h_tetris</title>
-        <link rel="stylesheet" href="styles.css"></link>
-    </head>
-    <body>
+        <link rel="stylesheet" href="styles.css">
         <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.9.4/p5.min.js"></script>
         <script src="sketch.js"></script>
         <script src="Block.js"></script>
         <script src="Shape.js"></script>
-
-        <div id="player1"></div>
-        <div id="player2"></div>
+        <script src="main.js"></script>
+    </head>
+    <body>
+        <div id="start-screen">
+            <h1 id="game-title">&gt;&gt;&gt; <span class="tetris-letter t">T</span><span class="tetris-letter e">E</span><span class="tetris-letter t">T</span><span class="tetris-letter r">R</span><span class="tetris-letter i">I</span><span class="tetris-letter s">S</span> &lt;&lt;&lt;
+            </h1>
+            <h2 id="game-sub">Clone by Hashim Alfayyadh</h2>
+            <div id="buttons">
+                <button id="single-button" class="start-button">SINGLEPLAYER</button>
+                <button id="multi-button" class="start-button">MULTIPLAYER</button>
+            </div>
+            
+        </div>
+        <div id="game-screen">
+            <div id="player1"></div>
+            <div id="player2"></div>
+        </div>
+        <div id="game-over">
+            <h1 id="lose">GAME OVER</h1>
+            <h2 id="score"></h2>
+            <button id="restart-button">RESTART</button>
+        </div>
     </body>
 </html>

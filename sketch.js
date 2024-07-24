@@ -6,6 +6,8 @@ const GRID_WIDTH = 10;
 const GRID_HEIGHT = 20;
 const B_SIZE = 30;
 const NUM_NEXT = 5;
+let garbage = [0,0];
+let isSinglePlayer = false;
 
 
 const tetris = p => {
@@ -254,11 +256,11 @@ const tetris = p => {
     }
 
     function sendGarbage(amount){
-        if(amount <= garbage[1]){
+        if(amount <= garbage[0]){
             garbage[0] -= amount;
         }
         else {
-            amount -= garbage[1];
+            amount -= garbage[0];
             garbage[0] = 0;
             garbage[1] += amount;
         }
@@ -294,7 +296,7 @@ const tetris = p => {
         p.push();
         p.textSize(p.floor(B_SIZE / 2));
         p.textAlign(p.LEFT, p.TOP);
-        p.text('W --\nROTATE\n\nS --\nSLOW DROP\n\nA + D --\nHORIZONTAL\n\nV --\nHARD DROP\n\nC --\nHOLD', B_SIZE / 2, B_SIZE * GRID_HEIGHT / 2,p.floor(GRID_HEIGHT / 3.5) * B_SIZE);
+        p.text('W >>\nROTATE\n\nS >>\nSLOW DROP\n\nA + D >>\nHORIZONTAL\n\nV --\nHARD DROP\n\nC --\nHOLD', B_SIZE / 2, B_SIZE * GRID_HEIGHT / 2,p.floor(GRID_HEIGHT / 3.5) * B_SIZE);
         p.pop();
     }
 
@@ -525,7 +527,10 @@ const tetris = p => {
                     dead.splice(0,dead.length);
                     held_piece = null;
                     score = 0;
-                    return;
+
+                    if (typeof window.gameOver === 'function') window.gameOver(2);
+
+                    return true;
                 }
             }
         }
@@ -806,7 +811,6 @@ const tetris2 = p => {
             garbage[1] = 0;
             garbage[0] += amount;
         }
-        
     }
 
     function createNext(){
@@ -848,7 +852,7 @@ const tetris2 = p => {
         p.push();
         p.textSize(p.floor(B_SIZE / 2));
         p.textAlign(p.LEFT, p.TOP);
-        p.text(`UP >>\nROTATE\n\nDOWN >>\nSLOW DROP\n\nLEFT+RIGHT >>\nHORIZONTAL\n\n${isSinglePlayer ? 'SPACE': '<'} >>\nHARD DROP\n\n${isSinglePlayer ? 'C': '>'} >>\nHOLD`,
+        p.text(`UP >>\nROTATE\n\nDOWN >>\nSLOW DROP\n\nLEFT+RIGHT >>\nHORIZONTAL\n\n${isSinglePlayer ? 'SPACE': '<'} --\nHARD DROP\n\n${isSinglePlayer ? 'C': '>'} --\nHOLD`,
                B_SIZE / 2, B_SIZE * GRID_HEIGHT / 2,p.floor(GRID_HEIGHT / 3.5) * B_SIZE);
         p.pop();
     }
@@ -1079,8 +1083,11 @@ const tetris2 = p => {
                 if(pos.equals(dead[i].get_pos())){
                     dead.splice(0,dead.length);
                     held_piece = null;
+
+                    if (typeof window.gameOver === 'function') window.gameOver(1, score);
                     score = 0;
-                    return;
+
+                    return true;
                 }
             }
         }
@@ -1108,16 +1115,4 @@ const tetris2 = p => {
     }
 }
 
-let isSinglePlayer = true;
-let garbage = [0,0];
-let player1;
-let player2;
-
-if (isSinglePlayer) {
-    player1 = new p5(tetris2, 'player1');
-}
-else{
-    player1 = new p5(tetris, 'player1');
-    player2 = new p5(tetris2, 'player2');
-}
 
