@@ -58,7 +58,7 @@ const tetris = p => {
             Creates all the different possible combinations of shapes using vectors provided by p5.js
 
             Postions is the relative positions of each shape in comparison to the top left corner of
-            the shape's 'bounding box' or the possible that it takes up in a square shape
+            the shape's 'bounding box' or the possible space that it takes up in a square shape
 
             Coloring allows the changing of the color of each shape directly in the shape configuration
 
