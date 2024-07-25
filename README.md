@@ -17,6 +17,11 @@ My Project is made up of 4 main javascript files:
     - Shape.js
     - Block.js
 
+Along with:
+
+    - an index.html file
+    - a styles.css file
+
 ### Inspiration:
 
 I've always wanted to create a clone of tetris since I began programming. Everytime I began I would instantly give up as I didn't know how to continue independently without following every single step from a tutorial. Now after completing the cs50x course, I had the tools I needed to create what I had in mind.
@@ -30,7 +35,7 @@ Contains all the assets used throughout the project. This includes fonts and ico
 
 ## main.js
 
-First I'll discuss the functionality of main.js file:
+First I'll discuss the functionality of the main.js file:
 
 At the top of main.js there are two variables, <code>player1</code> and <code>player2</code>. These variables hold the instances of p5.js used for each player. Player1 is also used for the singleplayer mode. Below this there is an event listener 'DOMContentLoaded' that is called the moment the initial html is loaded. Underneath there are some constants that are used for accessing certain DOM elements, like the buttons and screens.
 
