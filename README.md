@@ -1,21 +1,6 @@
 # TeTris
-#### VIDEO: https://youtu.be/tt0t9fTbPTI
-#### DESCRIPTION:
+## Name: Hashim Alfayyadh
+#### Video Demo: https://youtu.be/tt0t9fTbPTI
+#### Description:
  
 TO-DO:
-*-* add held window
-*-* add preview window
-
-:O
-*-* move main to instance mode for duplication (ooooo)
-    *-* update sketch.js
-    - update Shape + Block classes
-
-*-* make it 2 player
-*-* add working garbage
-- add start and lose screen
-    - SinglePlayer / 2 Player
-    - Lose / Restart Screen
-- write readme
-- record video
-- submit
