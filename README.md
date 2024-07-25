@@ -1,4 +1,6 @@
-# js_tetris
+# TeTris
+#### VIDEO: https://youtu.be/tt0t9fTbPTI
+#### DESCRIPTION:
  
 TO-DO:
 *-* add held window
