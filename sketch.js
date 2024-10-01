@@ -49,7 +49,7 @@ const tetris = p => {
 
     // Runs before setup
     p.preload = () => {
-        font = p.loadFont('assets/cool_font.otf');
+        font = p.loadFont('https://hashovic.github.io/TeTris/assets/cool-font.otf');
     }
 
     // Runs one time prior to game start
@@ -630,7 +630,7 @@ const tetris2 = p => {
 
     // Runs before setup
     p.preload = () => {
-        font = p.loadFont('assets/cool_font.otf');
+        font = p.loadFont('https://hashovic.github.io/TeTris/assets/cool-font.otf');
     }
 
     // Runs one time prior to game start
