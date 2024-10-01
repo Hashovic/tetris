@@ -27,6 +27,7 @@ document.addEventListener('DOMContentLoaded', function(){
 
     // Starts the game as single or multi player
     function startGame(version){
+        console.log("Starting game...");
         startScreen.style.display = 'none';
         gameScreen.style.display = 'flex';
         gameOverScreen.style.display = 'none';
