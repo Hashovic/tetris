@@ -5,7 +5,9 @@
 
 const LONG_INTERVAL = 125;  // For left and right delay
 const INTERVAL = 30;        // Left and right speed
-const AUTO_INTERVAL = 600;  // Auto down speed
+const ORIG_INTERVAL = 600;  // Original down interval (used for speed up)
+const SPEED_MULT = 40;      // Amount of speed boost
+const NUM_LVL = 10;         // Lines until speed boost
 const DOWN_INTERVAL = 40;   // Down speed
 const GRID_WIDTH = 10;
 const GRID_HEIGHT = 20;
@@ -13,6 +15,7 @@ const B_SIZE = 30;          // Size of grid blocks
 const NUM_NEXT = 5;         // Number of next pieces
 let garbage = [0,0];        // Garbage amounts for sending and receiving
 let isSinglePlayer = false;
+let auto_interval = 600;    // Auto down speed
 
 // Creates a p5 instance
 const tetris = p => {
@@ -387,7 +390,7 @@ const tetris = p => {
         let currentTime = p.millis();
         // down
 
-        if(currentTime - auto_down_time >= AUTO_INTERVAL){
+        if(currentTime - auto_down_time >= auto_interval){
             if(check_valid(0)) shapey.mvdwn();
             auto_down_time = currentTime;
         }
@@ -768,7 +771,6 @@ const tetris2 = p => {
             for(let block = 0; block < shapey.blocks.length; block++){
                 dead.push(shapey.blocks[block]);
             }
-
             let lines = line_clear();
             if(!isSinglePlayer && lines){
                 // DOUBLE
@@ -985,7 +987,7 @@ const tetris2 = p => {
         let currentTime = p.millis();
         // down
 
-        if(currentTime - auto_down_time >= AUTO_INTERVAL){
+        if(currentTime - auto_down_time >= auto_interval){
             if(check_valid(0)) shapey.mvdwn();
             auto_down_time = currentTime;
         }
@@ -1080,6 +1082,7 @@ const tetris2 = p => {
                 }
             }
         }
+        if(isSinglePlayer) auto_interval = ORIG_INTERVAL - (SPEED_MULT * p.floor(score/NUM_LVL));
 
         removed.sort((a,b) => a - b);
 
