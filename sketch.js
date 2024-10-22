@@ -630,6 +630,7 @@ const tetris2 = p => {
     let first_right = true;
     let has_switched = false;
     let kill = false;
+    let init_centered = false;
 
     // Runs before setup
     p.preload = () => {
@@ -728,9 +729,8 @@ const tetris2 = p => {
             }
             next_shapes.push(draw_block(1 + modx, 3 * j + 0.5 + mody, next_pieces[j], p.next_canvas));
         }
-
+        
         p.centerCanvas();
-
         p.textFont(font);
         p.textSize(B_SIZE);
         p.textAlign(p.CENTER, p.CENTER);
@@ -739,6 +739,10 @@ const tetris2 = p => {
 
     // Game loop (Constantly loops)
     p.draw = () => {
+        if(!init_centered){
+            p.centerCanvas();
+            init_centered = true;
+        }
         p.background(220);
 
         createHold();
