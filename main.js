@@ -48,6 +48,7 @@ document.addEventListener('DOMContentLoaded', function(){
         startScreen.style.display = 'flex';
         gameScreen.style.display = 'none';
         gameOverScreen.style.display = 'none';
+        singlePlayerButton.focus();
     }
 })
 
@@ -58,6 +59,7 @@ const gameOver = (player, s) => {
     const gameOverScreen = document.getElementById('game-over');
     const gameOverText = document.getElementById('lose');
     const scoreText = document.getElementById('score');
+    const restartButton = document.getElementById('restart-button');
 
     if(!isSinglePlayer){
         player1.remove();
@@ -73,6 +75,7 @@ const gameOver = (player, s) => {
     }
     gameScreen.style.display = 'none';
     gameOverScreen.style.display = 'flex';
+    restartButton.focus();
 };
 
 window.gameOver = gameOver;
