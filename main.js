@@ -75,7 +75,11 @@ const gameOver = (player, s) => {
     }
     gameScreen.style.display = 'none';
     gameOverScreen.style.display = 'flex';
-    restartButton.focus();
+    restartButton.style.display = 'none'
+    setTimeout(() => {
+        restartButton.style.display = 'flex';
+        restartButton.focus();
+    }, 1200);
 };
 
 window.gameOver = gameOver;
