@@ -11,6 +11,15 @@ body, html {
     align-items: center;
 }
 
+#return-button {
+    position: fixed;
+    top: 0;
+    left: 0;
+    margin: 30px;
+    z-index: 1000;
+    width: 10%;
+}
+
 #start-screen {
     display: flex;
     flex-direction: column;
@@ -44,7 +53,7 @@ body, html {
     text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
 }
 
-.start-button {
+.cool-button {
     width: 50%;
     height: auto;
     margin: 20px 0;

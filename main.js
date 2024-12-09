@@ -6,6 +6,7 @@ document.addEventListener('DOMContentLoaded', function(){
     const singlePlayerButton = document.getElementById('single-button');
     const multiPlayerButton = document.getElementById('multi-button');
     const restartButton = document.getElementById('restart-button');
+    const returnButton = document.getElementById('return-button');
     const startScreen = document.getElementById('start-screen');
     const gameScreen = document.getElementById('game-screen');
     const gameOverScreen = document.getElementById('game-over');
@@ -23,6 +24,10 @@ document.addEventListener('DOMContentLoaded', function(){
     // Checks when restart button is clicked
     restartButton.addEventListener('click', function(){
         restartGame();
+    })
+
+    returnButton.addEventListener('click', function(){
+        restartGame(1);
     })
 
     // Starts the game as single or multi player
@@ -44,7 +49,16 @@ document.addEventListener('DOMContentLoaded', function(){
     }
 
     // Restarts the game to start screen
-    const restartGame = () => {
+    const restartGame = (v=0) => {
+        if(v){
+            if(!isSinglePlayer){
+                player1.remove();
+                player2.remove();
+            }
+            else{
+                player1.remove();
+            }
+        }
         startScreen.style.display = 'flex';
         gameScreen.style.display = 'none';
         gameOverScreen.style.display = 'none';
