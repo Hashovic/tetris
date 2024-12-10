@@ -154,6 +154,8 @@ const tetris = p => {
         p.textSize(B_SIZE);
         p.textAlign(p.CENTER, p.CENTER);
 
+        auto_interval = ORIG_INTERVAL;
+
     }
 
     // Game loop (Constantly loops)
@@ -735,6 +737,7 @@ const tetris2 = p => {
         p.textSize(B_SIZE);
         p.textAlign(p.CENTER, p.CENTER);
 
+        auto_interval = ORIG_INTERVAL;
     }
 
     // Game loop (Constantly loops)
