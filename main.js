@@ -62,7 +62,10 @@ document.addEventListener('DOMContentLoaded', function(){
         startScreen.style.display = 'flex';
         gameScreen.style.display = 'none';
         gameOverScreen.style.display = 'none';
-        singlePlayerButton.focus();
+        
+        if(isSinglePlayer) singlePlayerButton.focus();
+        else multiPlayerButton.focus();
+        
     }
 })
 
